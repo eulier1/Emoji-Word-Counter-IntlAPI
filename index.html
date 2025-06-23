@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meaningful Word Counter</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.8;
+        }
+
+        .input-section {
+            margin-bottom: 2rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        #textInput {
+            width: 100%;
+            padding: 1.2rem 1.5rem;
+            font-size: 1.1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: #fff;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        #textInput:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+
+        #textInput::placeholder {
+            color: #a0aec0;
+            font-style: italic;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        button {
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .words-section {
+            margin-top: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .word-count {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .words-list {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            min-height: 200px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .word-item {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            margin: 0.3rem;
+            border-radius: 20px;
+            font-weight: 500;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #a0aec0;
+            font-style: italic;
+            padding: 2rem;
+        }
+
+
+
+        .progress-bar {
+            background: #e2e8f0;
+            height: 4px;
+            border-radius: 2px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .hero {
+                padding: 2rem;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>Meaningful Word Counter</h1>
+            <p class="subtitle">Explore text segmentation with the powerful Intl.Segmenter API</p>
+
+            <div class="input-section">
+                <div class="input-wrapper">
+                    <textarea id="textInput" placeholder="one small step for 🚶🏻, one giant leap for mankind"
+                        rows="3"></textarea>
+                </div>
+
+
+
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                </div>
+
+                <div class="button-group">
+                    <button id="resetBtn" class="btn-secondary" disabled>
+                        🔄 Reset All
+                    </button>
+                    <button id="nextWordBtn" class="btn-primary" disabled>
+                        ➡️ Next Word
+                    </button>
+                </div>
+            </div>
+
+            <div class="words-section">
+                <div class="section-title">
+                    Meaningful Words & Emojis
+                    <span id="wordCount" class="word-count">0</span>
+                </div>
+                <div id="wordsList" class="words-list">
+                    <div class="empty-state">
+                        Enter some text above and click "Next Word" to start segmenting!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class WordSegmenter {
+            constructor() {
+                this.textInput = document.getElementById('textInput');
+                this.nextWordBtn = document.getElementById('nextWordBtn');
+                this.resetBtn = document.getElementById('resetBtn');
+                this.wordsList = document.getElementById('wordsList');
+                this.wordCount = document.getElementById('wordCount');
+                this.progressFill = document.getElementById('progressFill');
+
+                this.segmenter = new Intl.Segmenter('en', { granularity: 'word' });
+                this.words = [];
+                this.currentIndex = 0;
+                this.processedWords = [];
+
+                this.init();
+            }
+
+            init() {
+                this.textInput.addEventListener('input', () => this.onTextChange());
+                this.nextWordBtn.addEventListener('click', () => this.nextWord());
+                this.resetBtn.addEventListener('click', () => this.reset());
+
+                // Initialize with placeholder text
+                this.textInput.value = this.textInput.placeholder;
+                this.onTextChange();
+            }
+
+            onTextChange() {
+                const text = this.textInput.value.trim();
+
+                if (text.length === 0) {
+                    this.disableButtons();
+                    this.reset();
+                    return;
+                }
+
+                // Segment the text into words
+                const segments = Array.from(this.segmenter.segment(text));
+                this.words = segments.filter(segment =>
+                    segment.isWordLike || this.isEmoji(segment.segment)
+                );
+
+                const wordCount = this.words.length;
+                const isValid = wordCount >= 2;
+
+                this.nextWordBtn.disabled = !isValid;
+                this.resetBtn.disabled = !isValid;
+
+                if (isValid) {
+                    this.currentIndex = 0;
+                    this.processedWords = [];
+                    this.updateDisplay();
+                } else {
+                    // No action needed for invalid input
+                }
+            }
+
+            isEmoji(text) {
+                // Simple emoji detection
+                const emojiRegex = /[\u{1F600}-\u{1F64F}]|[\u{1F300}-\u{1F5FF}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u;
+                return emojiRegex.test(text);
+            }
+
+            nextWord() {
+                if (this.currentIndex < this.words.length) {
+                    const word = this.words[this.currentIndex].segment.trim();
+                    if (word) {
+                        this.processedWords.push(word);
+                        this.addWordToList(word);
+                        this.currentIndex++;
+                        this.updateProgress();
+
+                        if (this.currentIndex >= this.words.length) {
+                            this.nextWordBtn.disabled = true;
+                        }
+                    }
+                }
+            }
+
+            addWordToList(word) {
+                if (this.wordsList.querySelector('.empty-state')) {
+                    this.wordsList.innerHTML = '';
+                }
+
+                const wordElement = document.createElement('span');
+                wordElement.className = 'word-item';
+                wordElement.textContent = word;
+                this.wordsList.appendChild(wordElement);
+
+                this.updateWordCount();
+            }
+
+            updateProgress() {
+                const progress = (this.currentIndex / this.words.length) * 100;
+                this.progressFill.style.width = `${progress}%`;
+            }
+
+            updateWordCount() {
+                this.wordCount.textContent = this.processedWords.length;
+            }
+
+            updateDisplay() {
+                this.updateWordCount();
+                this.updateProgress();
+            }
+
+            reset() {
+                this.processedWords = [];
+                this.currentIndex = 0;
+                this.wordsList.innerHTML = '<div class="empty-state">Enter some text above and click "Next Word" to start segmenting!</div>';
+                this.updateDisplay();
+                this.progressFill.style.width = '0%';
+
+                if (this.words.length >= 2) {
+                    this.nextWordBtn.disabled = false;
+                }
+            }
+
+            disableButtons() {
+                this.nextWordBtn.disabled = true;
+                this.resetBtn.disabled = true;
+            }
+        }
+
+        // Check if Intl.Segmenter is supported
+        if ('Segmenter' in Intl) {
+            new WordSegmenter();
+        } else {
+            document.body.innerHTML = `
+                <div class="container">
+                    <div class="hero" style="text-align: center; color: #e74c3c;">
+                        <h1>Browser Not Supported</h1>
+                        <p>Your browser doesn't support Intl.Segmenter API. Please use a modern browser like Chrome 87+, Firefox 125+, or Safari 14.1+.</p>
+                    </div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>
